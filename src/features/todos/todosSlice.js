@@ -5,7 +5,7 @@ const initialState = [
 ]
 
 function nextTodoId(todos) {
-  const maxId = todos.reduce(computeMaxId, -1)
+  const maxId = todos?.reduce(computeMaxId, -1) || 0
 
   return maxId + 1
 
