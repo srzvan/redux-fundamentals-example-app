@@ -1,18 +1,9 @@
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
 
 import rootReducer from './reducer'
 
-let preloadedState = loadLocalStorageState()
-const store = createStore(rootReducer, preloadedState)
-
-function loadLocalStorageState() {
-  const persistedTodosString = localStorage.getItem('todos')
-
-  if (persistedTodosString) {
-    return {
-      todos: JSON.parse(persistedTodosString),
-    }
-  }
-}
+const composedEnhancer = composeWithDevTools()
+const store = createStore(rootReducer, undefined, composedEnhancer)
 
 export default store

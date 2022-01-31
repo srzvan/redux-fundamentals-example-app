@@ -7,6 +7,8 @@ import store from './store'
 
 import './api/server'
 
+store.dispatch({ type: 'todos/ADD_TODO', payload: 'Learn about actions' })
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
