@@ -4,8 +4,8 @@ const initialState = {
 }
 
 const actions = {
-  CHANGE_STATUS_FILTER: 'todos/CHANGE_STATUS_FILTER',
-  CHANGE_COLOR_FILTER: 'todos/CHANGE_COLOR_FILTER',
+  CHANGE_STATUS_FILTER: 'filters/CHANGE_STATUS_FILTER',
+  CHANGE_COLOR_FILTER: 'filters/CHANGE_COLOR_FILTER',
 }
 
 export default function filtersReducer(state = initialState, action) {
