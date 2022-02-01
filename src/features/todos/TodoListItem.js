@@ -1,11 +1,18 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
 import { ReactComponent as TimesSolid } from './times-solid.svg'
 
 import { capitalize } from '../../utils'
 import { availableColors } from '../filters/colors'
 
-const TodoListItem = ({ todo, onColorChange, onCompletedChange, onDelete }) => {
+const selectTodoById = (state, todoId) =>
+  state.todos.find((todo) => todo.id === todoId)
+
+function TodoListItem(props) {
+  const { id, onColorChange, onCompletedChange, onDelete } = props
+
+  const todo = useSelector((state) => selectTodoById(state, id))
   const { text, completed, color } = todo
 
   const handleCompletedChanged = (e) => {
@@ -27,8 +34,8 @@ const TodoListItem = ({ todo, onColorChange, onCompletedChange, onDelete }) => {
       <div className="view">
         <div className="segment label">
           <input
-            className="toggle"
             type="checkbox"
+            className="toggle"
             checked={completed}
             onChange={handleCompletedChanged}
           />
@@ -36,9 +43,9 @@ const TodoListItem = ({ todo, onColorChange, onCompletedChange, onDelete }) => {
         </div>
         <div className="segment buttons">
           <select
-            className="colorPicker"
             value={color}
             style={{ color }}
+            className="colorPicker"
             onChange={handleColorChanged}
           >
             <option value=""></option>
