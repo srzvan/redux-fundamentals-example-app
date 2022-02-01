@@ -5,16 +5,12 @@ const initialState = [
 ]
 
 function nextTodoId(todos) {
-  const maxId = todos?.reduce(computeMaxId, -1) || 0
+  const maxId = todos.reduce((maxId, todo) => Math.max(todo.id, maxId), -1)
 
   return maxId + 1
-
-  function computeMaxId(maxId, todo) {
-    return Math.max(todo.id, maxId)
-  }
 }
 
-const actions = {
+export const actions = {
   ADD_TODO: 'todos/ADD_TODO',
   DELETE_TODO: 'todos/DELETE_TODO',
   TOGGLE_TODO: 'todos/TOGGLE_TODO',
@@ -29,7 +25,7 @@ export default function todosReducer(state = initialState, action) {
       return [
         ...state,
         {
-          id: nextTodoId(state.todos),
+          id: nextTodoId(state),
           text: action.payload,
           completed: false,
         },
