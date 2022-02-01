@@ -14,6 +14,38 @@ const selectRemainingTodos = (state) => {
   return remainingTodos.length
 }
 
+const Footer = () => {
+  const { status, colors } = useSelector((state) => state.filters)
+  const todosRemaining = useSelector(selectRemainingTodos)
+
+  const dispatch = useDispatch()
+
+  const onColorChange = (color, changeType) =>
+    dispatch({
+      type: filtersActions.CHANGE_COLOR_FILTER,
+      payload: {
+        color,
+        changeType,
+      },
+    })
+  const onStatusChange = (status) =>
+    dispatch({ type: filtersActions.CHANGE_STATUS_FILTER, payload: status })
+
+  return (
+    <footer className="footer">
+      <div className="actions">
+        <h5>Actions</h5>
+        <button className="button">Mark All Completed</button>
+        <button className="button">Clear Completed</button>
+      </div>
+
+      <RemainingTodos count={todosRemaining} />
+      <StatusFilter value={status} onChange={onStatusChange} />
+      <ColorFilters value={colors} onChange={onColorChange} />
+    </footer>
+  )
+}
+
 const RemainingTodos = ({ count }) => {
   const suffix = count === 1 ? '' : 's'
 
@@ -82,38 +114,6 @@ const ColorFilters = ({ value: colors, onChange }) => {
       <h5>Filter by Color</h5>
       <form className="colorSelection">{renderedColors}</form>
     </div>
-  )
-}
-
-const Footer = () => {
-  const { status, colors } = useSelector((state) => state.filters)
-  const todosRemaining = useSelector(selectRemainingTodos)
-
-  const dispatch = useDispatch()
-
-  const onColorChange = (color, changeType) =>
-    dispatch({
-      type: filtersActions.CHANGE_COLOR_FILTER,
-      payload: {
-        color,
-        changeType,
-      },
-    })
-  const onStatusChange = (status) =>
-    dispatch({ type: filtersActions.CHANGE_STATUS_FILTER, payload: status })
-
-  return (
-    <footer className="footer">
-      <div className="actions">
-        <h5>Actions</h5>
-        <button className="button">Mark All Completed</button>
-        <button className="button">Clear Completed</button>
-      </div>
-
-      <RemainingTodos count={todosRemaining} />
-      <StatusFilter value={status} onChange={onStatusChange} />
-      <ColorFilters value={colors} onChange={onColorChange} />
-    </footer>
   )
 }
 
