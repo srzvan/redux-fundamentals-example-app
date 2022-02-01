@@ -7,12 +7,12 @@ import { actions as todosActions } from './todosSlice'
 const selectTodosIds = (state) => state.todos.map((todo) => todo.id)
 
 function TodoList() {
-  const todos = useSelector(selectTodosIds, shallowEqual)
+  const todoIds = useSelector(selectTodosIds, shallowEqual)
   const dispatch = useDispatch()
 
   return (
     <ul className="todo-list">
-      {todos.map((id) => {
+      {todoIds.map((id) => {
         const onColorChange = (color) =>
           dispatch({
             type: todosActions.CHANGE_TODO_COLOR,
