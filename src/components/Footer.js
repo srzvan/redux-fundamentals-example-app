@@ -14,7 +14,7 @@ const selectRemainingTodos = (state) => {
   return remainingTodos.length
 }
 
-const Footer = () => {
+function Footer() {
   const { status, colors } = useSelector((state) => state.filters)
   const todosRemaining = useSelector(selectRemainingTodos)
 
@@ -46,7 +46,7 @@ const Footer = () => {
   )
 }
 
-const RemainingTodos = ({ count }) => {
+function RemainingTodos({ count }) {
   const suffix = count === 1 ? '' : 's'
 
   return (
@@ -59,7 +59,7 @@ const RemainingTodos = ({ count }) => {
   )
 }
 
-const StatusFilter = ({ value: status, onChange }) => {
+function StatusFilter({ value: status, onChange }) {
   const renderedFilters = Object.keys(StatusFilters).map((key) => {
     const value = StatusFilters[key]
     const handleClick = () => onChange(value)
@@ -82,7 +82,7 @@ const StatusFilter = ({ value: status, onChange }) => {
   )
 }
 
-const ColorFilters = ({ value: colors, onChange }) => {
+function ColorFilters({ value: colors, onChange }) {
   const renderedColors = availableColors.map((color) => {
     const checked = colors.includes(color)
     const handleChange = () => {

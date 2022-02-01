@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 
 import { actions as todoActions } from '../features/todos/todosSlice'
 
-const Header = () => {
+function Header() {
   const dispatch = useDispatch()
 
   const [text, setText] = useState('')
