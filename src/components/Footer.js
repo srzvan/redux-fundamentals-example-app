@@ -1,8 +1,18 @@
 import React from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { capitalize } from '../utils'
+import {
+  StatusFilters,
+  actions as filtersActions,
+} from '../features/filters/filtersSlice'
 import { availableColors } from '../features/filters/colors'
-import { StatusFilters } from '../features/filters/filtersSlice'
+
+const selectRemainingTodos = (state) => {
+  const remainingTodos = state.todos.filter((todo) => !todo.completed)
+
+  return remainingTodos.length
+}
 
 const RemainingTodos = ({ count }) => {
   const suffix = count === 1 ? '' : 's'
@@ -10,7 +20,9 @@ const RemainingTodos = ({ count }) => {
   return (
     <div className="todo-count">
       <h5>Remaining Todos</h5>
-      <strong>{count}</strong> item{suffix} left
+      <p>
+        <strong>{count}</strong> item{suffix} left
+      </p>
     </div>
   )
 }
@@ -42,7 +54,7 @@ const ColorFilters = ({ value: colors, onChange }) => {
   const renderedColors = availableColors.map((color) => {
     const checked = colors.includes(color)
     const handleChange = () => {
-      const changeType = checked ? 'removed' : 'added'
+      const changeType = checked ? 'remove' : 'add'
       onChange(color, changeType)
     }
 
@@ -74,13 +86,21 @@ const ColorFilters = ({ value: colors, onChange }) => {
 }
 
 const Footer = () => {
-  const colors = []
-  const status = StatusFilters.All
-  const todosRemaining = 1
+  const { status, colors } = useSelector((state) => state.filters)
+  const todosRemaining = useSelector(selectRemainingTodos)
+
+  const dispatch = useDispatch()
 
   const onColorChange = (color, changeType) =>
-    console.log('Color change: ', { color, changeType })
-  const onStatusChange = (status) => console.log('Status change: ', status)
+    dispatch({
+      type: filtersActions.CHANGE_COLOR_FILTER,
+      payload: {
+        color,
+        changeType,
+      },
+    })
+  const onStatusChange = (status) =>
+    dispatch({ type: filtersActions.CHANGE_STATUS_FILTER, payload: status })
 
   return (
     <footer className="footer">

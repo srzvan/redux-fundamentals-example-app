@@ -9,7 +9,7 @@ const initialState = {
   colors: [],
 }
 
-const actions = {
+export const actions = {
   CHANGE_STATUS_FILTER: 'filters/CHANGE_STATUS_FILTER',
   CHANGE_COLOR_FILTER: 'filters/CHANGE_COLOR_FILTER',
 }
