@@ -7,6 +7,7 @@ import {
   actions as filtersActions,
 } from '../features/filters/filtersSlice'
 import { availableColors } from '../features/filters/colors'
+import { actions as todosActions } from '../features/todos/todosSlice'
 
 const selectRemainingTodos = (state) => {
   const remainingTodos = state.todos.filter((todo) => !todo.completed)
@@ -31,12 +32,22 @@ function Footer() {
   const onStatusChange = (status) =>
     dispatch({ type: filtersActions.CHANGE_STATUS_FILTER, payload: status })
 
+  const completeAllTodos = () =>
+    dispatch({ type: todosActions.COMPLETE_ALL_TODOS })
+
+  const clearCompletedTodos = () =>
+    dispatch({ type: todosActions.CLEAR_COMPLETED_TODOS })
+
   return (
     <footer className="footer">
       <div className="actions">
         <h5>Actions</h5>
-        <button className="button">Mark All Completed</button>
-        <button className="button">Clear Completed</button>
+        <button className="button" onClick={completeAllTodos}>
+          Mark All Completed
+        </button>
+        <button className="button" onClick={clearCompletedTodos}>
+          Clear Completed
+        </button>
       </div>
 
       <RemainingTodos count={todosRemaining} />

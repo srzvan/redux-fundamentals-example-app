@@ -16,7 +16,7 @@ export const actions = {
   TOGGLE_TODO: 'todos/TOGGLE_TODO',
   CHANGE_TODO_COLOR: 'todos/CHANGE_TODO_COLOR',
   COMPLETE_ALL_TODOS: 'todos/COMPLETE_ALL_TODOS',
-  CLEAR_ALL_COMPLETED_TODOS: 'todos/CLEAR_ALL_COMPLETED_TODOS',
+  CLEAR_COMPLETED_TODOS: 'todos/CLEAR_COMPLETED_TODOS',
 }
 
 export default function todosReducer(state = initialState, action) {
@@ -70,7 +70,7 @@ export default function todosReducer(state = initialState, action) {
         }
       })
     }
-    case actions.CLEAR_ALL_COMPLETED_TODOS: {
+    case actions.CLEAR_COMPLETED_TODOS: {
       return state.filter((todo) => !todo.completed)
     }
     default:
