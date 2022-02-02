@@ -1,55 +1,11 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { client } from '../../api/client'
-import { APICallStatusTypes } from '../../utils'
-import { StatusFilters } from '../filters/filtersSlice'
+import { APICallStatusTypes, StatusFilters } from '../../utils'
 
 const initialState = {
   status: APICallStatusTypes.IDLE,
   entities: {},
-}
-
-const actionTypes = {
-  ADD_TODO: 'todos/ADD_TODO',
-  DELETE_TODO: 'todos/DELETE_TODO',
-  TOGGLE_TODO: 'todos/TOGGLE_TODO',
-  TODOS_LOADED: 'todos/TODOS_LOADED',
-  TODOS_LOADING: 'todos/TODOS_LOADING',
-  CHANGE_TODO_COLOR: 'todos/CHANGE_TODO_COLOR',
-  COMPLETE_ALL_TODOS: 'todos/COMPLETE_ALL_TODOS',
-  CLEAR_COMPLETED_TODOS: 'todos/CLEAR_COMPLETED_TODOS',
-}
-
-export const actionCreators = {
-  todosLoading: () => ({
-    type: actionTypes.TODOS_LOADING,
-  }),
-  todosLoaded: (todos) => ({
-    type: actionTypes.TODOS_LOADED,
-    payload: todos,
-  }),
-  todoAdded: (todo) => ({
-    type: actionTypes.ADD_TODO,
-    payload: todo,
-  }),
-  todoDeleted: (id) => ({
-    type: actionTypes.DELETE_TODO,
-    payload: id,
-  }),
-  todoToggled: (id) => ({
-    type: actionTypes.TOGGLE_TODO,
-    payload: id,
-  }),
-  todoColorChanged: (id, color) => ({
-    type: actionTypes.CHANGE_TODO_COLOR,
-    payload: { id, color },
-  }),
-  completeAll: () => ({
-    type: actionTypes.COMPLETE_ALL_TODOS,
-  }),
-  clearAllCompleted: () => ({
-    type: actionTypes.CLEAR_COMPLETED_TODOS,
-  }),
 }
 
 const selectTodoEntities = (state) => state.todos.entities
@@ -142,7 +98,11 @@ const todosSlice = createSlice({
       })
     },
     clearAllCompletedTodos(state, _) {
-      Object.values(state.entities).filter((todo) => !todo.completed)
+      Object.values(state.entities).forEach((todo) => {
+        if (todo.completed) {
+          delete state.entities[todo.id]
+        }
+      })
     },
   },
 })

@@ -1,52 +1,38 @@
-export const StatusFilters = {
-  All: 'all',
-  Active: 'active',
-  Completed: 'completed',
-}
+import { createSlice } from '@reduxjs/toolkit'
+
+import { StatusFilters } from '../../utils'
 
 const initialState = {
-  status: 'all',
+  status: StatusFilters.All,
   colors: [],
 }
 
-const actionTypes = {
-  CHANGE_STATUS_FILTER: 'filters/CHANGE_STATUS_FILTER',
-  CHANGE_COLOR_FILTER: 'filters/CHANGE_COLOR_FILTER',
-}
+const filtersSlice = createSlice({
+  name: 'filters',
+  initialState,
+  reducers: {
+    statusFilterChanged(state, action) {
+      state.status = action.payload
+    },
+    colorFilterChanged: {
+      reducer(state, action) {
+        const { color, changeType } = action.payload
 
-export const actionCreators = {
-  colorFilterChanged: (color, changeType) => ({
-    type: actionTypes.CHANGE_COLOR_FILTER,
-    payload: { color, changeType },
-  }),
-  statusFilterChanged: (status) => ({
-    type: actionTypes.CHANGE_STATUS_FILTER,
-    payload: status,
-  }),
-}
-
-export default function filtersReducer(state = initialState, action) {
-  switch (action.type) {
-    case actionTypes.CHANGE_STATUS_FILTER: {
-      return {
-        ...state,
-        status: action.payload,
-      }
-    }
-    case actionTypes.CHANGE_COLOR_FILTER: {
-      if (action.payload.changeType === 'add') {
-        return {
-          ...state,
-          colors: [...state.colors, action.payload.color],
+        if (changeType === 'add') {
+          state.colors.push(color)
+        } else {
+          state.colors.filter((c) => c !== color)
         }
-      }
+      },
+      prepare(color, changeType) {
+        return {
+          payload: { color, changeType },
+        }
+      },
+    },
+  },
+})
 
-      return {
-        ...state,
-        colors: state.colors.filter((color) => color !== action.payload.color),
-      }
-    }
-    default:
-      return state
-  }
-}
+export const { statusFilterChanged, colorFilterChanged } = filtersSlice.actions
+
+export default filtersSlice.reducer

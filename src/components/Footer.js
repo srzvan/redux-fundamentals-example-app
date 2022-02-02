@@ -1,17 +1,17 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { capitalize } from '../utils'
-import {
-  StatusFilters,
-  actionCreators as filterActionCreators,
-} from '../features/filters/filtersSlice'
-import { availableColors } from '../features/filters/colors'
+import { capitalize, StatusFilters } from '../utils'
 import {
   selectTodos,
   completeAllTodos,
   clearAllCompletedTodos,
 } from '../features/todos/todosSlice'
+import {
+  colorFilterChanged,
+  statusFilterChanged,
+} from '../features/filters/filtersSlice'
+import { availableColors } from '../features/filters/colors'
 
 const selectActiveTodosCount = (state) => {
   const activeTodos = selectTodos(state).filter((todo) => !todo.completed)
@@ -26,9 +26,8 @@ function Footer() {
   const dispatch = useDispatch()
 
   const onColorChange = (color, changeType) =>
-    dispatch(filterActionCreators.colorFilterChanged(color, changeType))
-  const onStatusChange = (status) =>
-    dispatch(filterActionCreators.statusFilterChanged(status))
+    dispatch(colorFilterChanged(color, changeType))
+  const onStatusChange = (status) => dispatch(statusFilterChanged(status))
 
   const completeAll = () => dispatch(completeAllTodos())
 

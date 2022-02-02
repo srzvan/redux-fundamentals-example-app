@@ -6,3 +6,9 @@ export const APICallStatusTypes = {
   SUCCEEDED: 'succeeded',
   FAILED: 'failed',
 }
+
+export const StatusFilters = {
+  All: 'all',
+  Active: 'active',
+  Completed: 'completed',
+}
