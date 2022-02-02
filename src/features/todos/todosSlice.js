@@ -12,7 +12,7 @@ export const statusTypes = {
 
 const initialState = {
   status: statusTypes.IDLE,
-  entities: [],
+  entities: {},
 }
 
 const actionTypes = {
@@ -58,13 +58,16 @@ export const actionCreators = {
   }),
 }
 
-export const selectTodos = (state) => state.todos.entities
+const selectTodoEntities = (state) => state.todos.entities
 
-export const selectTodoById = (state, id) =>
-  selectTodos(state).find((todo) => todo.id === id)
+export const selectTodos = createSelector(selectTodoEntities, (entities) =>
+  Object.values(entities)
+)
+
+export const selectTodoById = (state, id) => selectTodoEntities(state)[id]
 
 export const selectTodoIds = createSelector(selectTodos, (todos) =>
-  todos.map((todo) => todo.id)
+  Object.keys(todos)
 )
 
 export const selectFilteredTodos = createSelector(
@@ -101,68 +104,90 @@ export default function todosReducer(state = initialState, action) {
         status: statusTypes.LOADING,
       }
     case actionTypes.TODOS_LOADED: {
-      return { ...state, status: statusTypes.IDLE, entities: action.payload }
+      const newEntities = {}
+
+      action.payload.forEach((todo) => (newEntities[todo.id] = todo))
+
+      return { ...state, status: statusTypes.IDLE, entities: newEntities }
     }
     case actionTypes.ADD_TODO: {
-      return { ...state, entities: [...state.entities, action.payload] }
-    }
-    case actionTypes.DELETE_TODO: {
+      const todo = action.payload
+
       return {
         ...state,
-        entities: state.entities.filter(
-          (todo) => todo.id !== action.payload.id
-        ),
+        entities: { ...state.entities, [todo.id]: todo },
+      }
+    }
+    case actionTypes.DELETE_TODO: {
+      const { id } = action.payload
+      const newEntities = { ...state.entities }
+
+      delete newEntities[id]
+
+      return {
+        ...state,
+        entities: newEntities,
       }
     }
     case actionTypes.TOGGLE_TODO: {
+      const id = action.payload
+      const todo = state.entities[id]
+
       return {
         ...state,
-        entities: state.entities.map((todo) => {
-          if (todo.id !== action.payload) {
-            return todo
-          }
-
-          return {
+        entities: {
+          ...state.entities,
+          [id]: {
             ...todo,
             completed: !todo.completed,
-          }
-        }),
+          },
+        },
       }
     }
     case actionTypes.CHANGE_TODO_COLOR: {
+      const { id, color } = action.payload
+      const todo = state.entities[id]
+
       return {
         ...state,
-        entities: state.entities.map((todo) => {
-          if (todo.id !== action.payload.id) {
-            return todo
-          }
-
-          return {
+        entities: {
+          ...state.entities,
+          [id]: {
             ...todo,
-            color: action.payload.color,
-          }
-        }),
+            color,
+          },
+        },
       }
     }
     case actionTypes.COMPLETE_ALL_TODOS: {
-      return {
-        ...state,
-        entities: state.entities.map((todo) => {
-          if (todo.completed) {
-            return todo
-          }
+      const newEntities = { ...state.entities }
 
-          return {
+      Object.values(newEntities).forEach((todo) => {
+        if (!todo.completed) {
+          newEntities[todo.id] = {
             ...todo,
             completed: true,
           }
-        }),
+        }
+      })
+
+      return {
+        ...state,
+        entities: newEntities,
       }
     }
     case actionTypes.CLEAR_COMPLETED_TODOS: {
+      const newEntities = { ...state.entities }
+
+      Object.values(newEntities).forEach((todo) => {
+        if (todo.completed) {
+          delete newEntities[todo.id]
+        }
+      })
+
       return {
         ...state,
-        entities: state.entities.filter((todo) => !todo.completed),
+        entities: newEntities,
       }
     }
     default:
