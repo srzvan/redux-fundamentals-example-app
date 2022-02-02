@@ -1,17 +1,11 @@
 import { createSelector } from 'reselect'
 
 import { client } from '../../api/client'
+import { APICallStatusTypes } from '../../utils'
 import { StatusFilters } from '../filters/filtersSlice'
 
-export const statusTypes = {
-  IDLE: 'idle',
-  LOADING: 'loading',
-  SUCCEEDED: 'succeeded',
-  FAILED: 'failed',
-}
-
 const initialState = {
-  status: statusTypes.IDLE,
+  status: APICallStatusTypes.IDLE,
   entities: {},
 }
 
@@ -101,14 +95,18 @@ export default function todosReducer(state = initialState, action) {
     case actionTypes.TODOS_LOADING:
       return {
         ...state,
-        status: statusTypes.LOADING,
+        status: APICallStatusTypes.LOADING,
       }
     case actionTypes.TODOS_LOADED: {
       const newEntities = {}
 
       action.payload.forEach((todo) => (newEntities[todo.id] = todo))
 
-      return { ...state, status: statusTypes.IDLE, entities: newEntities }
+      return {
+        ...state,
+        status: APICallStatusTypes.IDLE,
+        entities: newEntities,
+      }
     }
     case actionTypes.ADD_TODO: {
       const todo = action.payload

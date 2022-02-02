@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import {
   selectFilteredTodoIds,
-  statusTypes as todosStatusTypes,
   actionCreators as todosActionCreators,
 } from './todosSlice'
 import TodoListItem from './TodoListItem'
+import { APICallStatusTypes } from '../../utils'
 
 function TodoList() {
   const todoIds = useSelector(selectFilteredTodoIds)
@@ -14,7 +14,7 @@ function TodoList() {
 
   const dispatch = useDispatch()
 
-  if (status === todosStatusTypes.LOADING) {
+  if (status === APICallStatusTypes.LOADING) {
     return (
       <div className="todo-list">
         <div className="loader" />

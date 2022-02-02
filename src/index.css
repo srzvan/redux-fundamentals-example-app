@@ -98,6 +98,10 @@ button:disabled:hover {
   opacity: 0.5;
 }
 
+input[disabled] {
+  color: rgba(0, 0, 0, 0.35);
+}
+
 /* https://projects.lukehaas.me/css-loaders/ , Loader #3 */
 .loader {
   font-size: 10px;
