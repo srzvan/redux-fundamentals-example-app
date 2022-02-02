@@ -3,13 +3,24 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import {
   selectFilteredTodoIds,
+  statusTypes as todosStatusTypes,
   actionCreators as todosActionCreators,
 } from './todosSlice'
 import TodoListItem from './TodoListItem'
 
 function TodoList() {
   const todoIds = useSelector(selectFilteredTodoIds)
+  const status = useSelector((state) => state.todos.status)
+
   const dispatch = useDispatch()
+
+  if (status === todosStatusTypes.LOADING) {
+    return (
+      <div className="todo-list">
+        <div className="loader" />
+      </div>
+    )
+  }
 
   return (
     <ul className="todo-list">

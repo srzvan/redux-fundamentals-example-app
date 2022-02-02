@@ -7,10 +7,13 @@ import {
   actionCreators as filterActionCreators,
 } from '../features/filters/filtersSlice'
 import { availableColors } from '../features/filters/colors'
-import { actionCreators as todosActionCreators } from '../features/todos/todosSlice'
+import {
+  selectTodos,
+  actionCreators as todosActionCreators,
+} from '../features/todos/todosSlice'
 
 const selectActiveTodosCount = (state) => {
-  const activeTodos = state.todos.filter((todo) => !todo.completed)
+  const activeTodos = selectTodos(state).filter((todo) => !todo.completed)
 
   return activeTodos.length
 }
