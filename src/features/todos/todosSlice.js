@@ -117,7 +117,7 @@ export default function todosReducer(state = initialState, action) {
       }
     }
     case actionTypes.DELETE_TODO: {
-      const { id } = action.payload
+      const id = action.payload
       const newEntities = { ...state.entities }
 
       delete newEntities[id]
