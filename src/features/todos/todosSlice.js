@@ -1,4 +1,4 @@
-import { createSelector } from 'reselect'
+import { createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { client } from '../../api/client'
 import { APICallStatusTypes } from '../../utils'
@@ -90,115 +90,82 @@ export const selectFilteredTodoIds = createSelector(
   (filteredTodos) => filteredTodos.map((todo) => todo.id)
 )
 
-export default function todosReducer(state = initialState, action) {
-  switch (action.type) {
-    case actionTypes.TODOS_LOADING:
-      return {
-        ...state,
-        status: APICallStatusTypes.LOADING,
-      }
-    case actionTypes.TODOS_LOADED: {
-      const newEntities = {}
-
-      action.payload.forEach((todo) => (newEntities[todo.id] = todo))
-
-      return {
-        ...state,
-        status: APICallStatusTypes.IDLE,
-        entities: newEntities,
-      }
-    }
-    case actionTypes.ADD_TODO: {
+const todosSlice = createSlice({
+  name: 'todos',
+  initialState,
+  reducers: {
+    todoAdded(state, action) {
       const todo = action.payload
 
-      return {
-        ...state,
-        entities: { ...state.entities, [todo.id]: todo },
-      }
-    }
-    case actionTypes.DELETE_TODO: {
+      state.entities[todo.id] = todo
+    },
+    todoDeleted(state, action) {
       const id = action.payload
-      const newEntities = { ...state.entities }
 
-      delete newEntities[id]
-
-      return {
-        ...state,
-        entities: newEntities,
-      }
-    }
-    case actionTypes.TOGGLE_TODO: {
+      delete state.entities[id]
+    },
+    todoToggled(state, action) {
       const id = action.payload
       const todo = state.entities[id]
 
-      return {
-        ...state,
-        entities: {
-          ...state.entities,
-          [id]: {
-            ...todo,
-            completed: !todo.completed,
-          },
-        },
-      }
-    }
-    case actionTypes.CHANGE_TODO_COLOR: {
-      const { id, color } = action.payload
-      const todo = state.entities[id]
+      todo.completed = !todo.completed
+    },
+    todosLoaded(state, action) {
+      const todos = action.payload
 
-      return {
-        ...state,
-        entities: {
-          ...state.entities,
-          [id]: {
-            ...todo,
-            color,
-          },
-        },
-      }
-    }
-    case actionTypes.COMPLETE_ALL_TODOS: {
-      const newEntities = { ...state.entities }
+      state.status = APICallStatusTypes.IDLE
+      todos.forEach((todo) => {
+        state.entities[todo.id] = todo
+      })
+    },
+    todosLoading(state, _) {
+      state.status = APICallStatusTypes.LOADING
+    },
+    todoColorChanged: {
+      reducer(state, action) {
+        const { id, color } = action.payload
+        const todo = state.entities[id]
 
-      Object.values(newEntities).forEach((todo) => {
+        todo.color = color
+      },
+      prepare(id, color) {
+        return {
+          payload: { id, color },
+        }
+      },
+    },
+    completeAllTodos(state, _) {
+      Object.values(state.entities).forEach((todo) => {
         if (!todo.completed) {
-          newEntities[todo.id] = {
-            ...todo,
-            completed: true,
-          }
+          todo.completed = true
         }
       })
+    },
+    clearAllCompletedTodos(state, _) {
+      Object.values(state.entities).filter((todo) => !todo.completed)
+    },
+  },
+})
 
-      return {
-        ...state,
-        entities: newEntities,
-      }
-    }
-    case actionTypes.CLEAR_COMPLETED_TODOS: {
-      const newEntities = { ...state.entities }
+export const {
+  todoAdded,
+  todoDeleted,
+  todoToggled,
+  todosLoaded,
+  todosLoading,
+  todoColorChanged,
+  completeAllTodos,
+  clearAllCompletedTodos,
+} = todosSlice.actions
 
-      Object.values(newEntities).forEach((todo) => {
-        if (todo.completed) {
-          delete newEntities[todo.id]
-        }
-      })
-
-      return {
-        ...state,
-        entities: newEntities,
-      }
-    }
-    default:
-      return state
-  }
-}
+export default todosSlice.reducer
 
 export function fetchTodos() {
   return async function fetchTodosThunk(dispatch, _) {
-    dispatch(actionCreators.todosLoading())
+    dispatch(todosLoading())
 
     const response = await client.get('/fakeApi/todos')
-    dispatch(actionCreators.todosLoaded(response.todos))
+    dispatch(todosLoaded(response.todos))
   }
 }
 
@@ -206,6 +173,6 @@ export function saveTodo(text) {
   return async function saveTodoThunk(dispatch, _) {
     const response = await client.post('/fakeApi/todos', { todo: { text } })
 
-    dispatch(actionCreators.todoAdded(response.todo))
+    dispatch(todoAdded(response.todo))
   }
 }

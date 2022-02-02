@@ -9,7 +9,8 @@ import {
 import { availableColors } from '../features/filters/colors'
 import {
   selectTodos,
-  actionCreators as todosActionCreators,
+  completeAllTodos,
+  clearAllCompletedTodos,
 } from '../features/todos/todosSlice'
 
 const selectActiveTodosCount = (state) => {
@@ -29,19 +30,18 @@ function Footer() {
   const onStatusChange = (status) =>
     dispatch(filterActionCreators.statusFilterChanged(status))
 
-  const completeAllTodos = () => dispatch(todosActionCreators.completeAll())
+  const completeAll = () => dispatch(completeAllTodos())
 
-  const clearCompletedTodos = () =>
-    dispatch(todosActionCreators.clearAllCompleted())
+  const clearCompleted = () => dispatch(clearAllCompletedTodos())
 
   return (
     <footer className="footer">
       <div className="actions">
         <h5>Actions</h5>
-        <button className="button" onClick={completeAllTodos}>
+        <button className="button" onClick={completeAll}>
           Mark All Completed
         </button>
-        <button className="button" onClick={clearCompletedTodos}>
+        <button className="button" onClick={clearCompleted}>
           Clear Completed
         </button>
       </div>

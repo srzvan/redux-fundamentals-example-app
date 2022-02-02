@@ -2,8 +2,10 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import {
+  todoToggled,
+  todoDeleted,
+  todoColorChanged,
   selectFilteredTodoIds,
-  actionCreators as todosActionCreators,
 } from './todosSlice'
 import TodoListItem from './TodoListItem'
 import { APICallStatusTypes } from '../../utils'
@@ -25,11 +27,9 @@ function TodoList() {
   return (
     <ul className="todo-list">
       {todoIds.map((id) => {
-        const onColorChange = (color) =>
-          dispatch(todosActionCreators.todoColorChanged(id, color))
-        const onCompletedChange = () =>
-          dispatch(todosActionCreators.todoToggled(id))
-        const onDelete = () => dispatch(todosActionCreators.todoDeleted(id))
+        const onColorChange = (color) => dispatch(todoColorChanged(id, color))
+        const onCompletedChange = () => dispatch(todoToggled(id))
+        const onDelete = () => dispatch(todoDeleted(id))
 
         return (
           <TodoListItem
