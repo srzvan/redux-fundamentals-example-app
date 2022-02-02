@@ -9,15 +9,15 @@ import {
 import { availableColors } from '../features/filters/colors'
 import { actionCreators as todosActionCreators } from '../features/todos/todosSlice'
 
-const selectRemainingTodos = (state) => {
-  const remainingTodos = state.todos.filter((todo) => !todo.completed)
+const selectActiveTodosCount = (state) => {
+  const activeTodos = state.todos.filter((todo) => !todo.completed)
 
-  return remainingTodos.length
+  return activeTodos.length
 }
 
 function Footer() {
   const { status, colors } = useSelector((state) => state.filters)
-  const todosRemaining = useSelector(selectRemainingTodos)
+  const activeTodosCount = useSelector(selectActiveTodosCount)
 
   const dispatch = useDispatch()
 
@@ -43,7 +43,7 @@ function Footer() {
         </button>
       </div>
 
-      <RemainingTodos count={todosRemaining} />
+      <RemainingTodos count={activeTodosCount} />
       <StatusFilter value={status} onChange={onStatusChange} />
       <ColorFilters value={colors} onChange={onColorChange} />
     </footer>

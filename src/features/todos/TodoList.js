@@ -1,13 +1,14 @@
 import React from 'react'
-import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
+import {
+  selectFilteredTodoIds,
+  actionCreators as todosActionCreators,
+} from './todosSlice'
 import TodoListItem from './TodoListItem'
-import { actionCreators as todosActionCreators } from './todosSlice'
-
-const selectTodosIds = (state) => state.todos.map((todo) => todo.id)
 
 function TodoList() {
-  const todoIds = useSelector(selectTodosIds, shallowEqual)
+  const todoIds = useSelector(selectFilteredTodoIds)
   const dispatch = useDispatch()
 
   return (

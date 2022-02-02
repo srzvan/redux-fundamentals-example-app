@@ -1,4 +1,7 @@
+import { createSelector } from 'reselect'
+
 import { client } from '../../api/client'
+import { StatusFilters } from '../filters/filtersSlice'
 
 const initialState = []
 
@@ -40,6 +43,41 @@ export const actionCreators = {
     type: actionTypes.CLEAR_COMPLETED_TODOS,
   }),
 }
+
+export const selectTodos = (state) => state.todos
+
+export const selectTodoById = (state, id) =>
+  selectTodos(state).find((todo) => todo.id === id)
+
+export const selectTodoIds = createSelector(selectTodos, (todos) =>
+  todos.map((todo) => todo.id)
+)
+
+export const selectFilteredTodos = createSelector(
+  selectTodos,
+  (state) => state.filters,
+  (todos, filters) => {
+    const { status, colors } = filters
+    const showAll = status === StatusFilters.All
+
+    if (showAll && colors.length === 0) {
+      return todos
+    }
+
+    return todos.filter((todo) => {
+      const completedStatus = status === StatusFilters.Completed
+      const statusFilter = showAll || todo.completed === completedStatus
+      const colorFilter = colors.length === 0 || colors.includes(todo.color)
+
+      return statusFilter && colorFilter
+    })
+  }
+)
+
+export const selectFilteredTodoIds = createSelector(
+  selectFilteredTodos,
+  (filteredTodos) => filteredTodos.map((todo) => todo.id)
+)
 
 export default function todosReducer(state = initialState, action) {
   switch (action.type) {
