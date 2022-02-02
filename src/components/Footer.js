@@ -4,10 +4,10 @@ import { useSelector, useDispatch } from 'react-redux'
 import { capitalize } from '../utils'
 import {
   StatusFilters,
-  actions as filtersActions,
+  actionCreators as filterActionCreators,
 } from '../features/filters/filtersSlice'
 import { availableColors } from '../features/filters/colors'
-import { actions as todosActions } from '../features/todos/todosSlice'
+import { actionCreators as todosActionCreators } from '../features/todos/todosSlice'
 
 const selectRemainingTodos = (state) => {
   const remainingTodos = state.todos.filter((todo) => !todo.completed)
@@ -22,21 +22,14 @@ function Footer() {
   const dispatch = useDispatch()
 
   const onColorChange = (color, changeType) =>
-    dispatch({
-      type: filtersActions.CHANGE_COLOR_FILTER,
-      payload: {
-        color,
-        changeType,
-      },
-    })
+    dispatch(filterActionCreators.colorFilterChanged(color, changeType))
   const onStatusChange = (status) =>
-    dispatch({ type: filtersActions.CHANGE_STATUS_FILTER, payload: status })
+    dispatch(filterActionCreators.statusFilterChanged(status))
 
-  const completeAllTodos = () =>
-    dispatch({ type: todosActions.COMPLETE_ALL_TODOS })
+  const completeAllTodos = () => dispatch(todosActionCreators.completeAll())
 
   const clearCompletedTodos = () =>
-    dispatch({ type: todosActions.CLEAR_COMPLETED_TODOS })
+    dispatch(todosActionCreators.clearAllCompleted())
 
   return (
     <footer className="footer">

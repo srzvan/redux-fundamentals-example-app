@@ -2,7 +2,7 @@ import { client } from '../../api/client'
 
 const initialState = []
 
-export const actions = {
+const actionTypes = {
   ADD_TODO: 'todos/ADD_TODO',
   DELETE_TODO: 'todos/DELETE_TODO',
   TOGGLE_TODO: 'todos/TOGGLE_TODO',
@@ -12,20 +12,49 @@ export const actions = {
   CLEAR_COMPLETED_TODOS: 'todos/CLEAR_COMPLETED_TODOS',
 }
 
+export const actionCreators = {
+  todosLoaded: (todos) => ({
+    type: actionTypes.TODOS_LOADED,
+    payload: todos,
+  }),
+  todoAdded: (todo) => ({
+    type: actionTypes.ADD_TODO,
+    payload: todo,
+  }),
+  todoDeleted: (id) => ({
+    type: actionTypes.DELETE_TODO,
+    payload: id,
+  }),
+  todoToggled: (id) => ({
+    type: actionTypes.TOGGLE_TODO,
+    payload: id,
+  }),
+  todoColorChanged: (id, color) => ({
+    type: actionTypes.CHANGE_TODO_COLOR,
+    payload: { id, color },
+  }),
+  completeAll: () => ({
+    type: actionTypes.COMPLETE_ALL_TODOS,
+  }),
+  clearAllCompleted: () => ({
+    type: actionTypes.CLEAR_COMPLETED_TODOS,
+  }),
+}
+
 export default function todosReducer(state = initialState, action) {
   switch (action.type) {
-    case actions.TODOS_LOADED: {
+    case actionTypes.TODOS_LOADED: {
       return action.payload
     }
-    case actions.ADD_TODO: {
+    case actionTypes.ADD_TODO: {
       return [...state, action.payload]
     }
-    case actions.DELETE_TODO: {
+    case actionTypes.DELETE_TODO: {
       return state.filter((todo) => todo.id !== action.payload.id)
     }
-    case actions.TOGGLE_TODO: {
+    case actionTypes.TOGGLE_TODO: {
       return state.map((todo) => {
-        if (todo.id !== action.payload.id) {
+        if (todo.id !== action.payload) {
           return todo
         }
 
@@ -35,7 +64,7 @@ export default function todosReducer(state = initialState, action) {
         }
       })
     }
-    case actions.CHANGE_TODO_COLOR: {
+    case actionTypes.CHANGE_TODO_COLOR: {
       return state.map((todo) => {
         if (todo.id !== action.payload.id) {
           return todo
@@ -47,7 +76,7 @@ export default function todosReducer(state = initialState, action) {
         }
       })
     }
-    case actions.COMPLETE_ALL_TODOS: {
+    case actionTypes.COMPLETE_ALL_TODOS: {
       return state.map((todo) => {
         if (todo.completed) {
           return todo
@@ -59,7 +88,7 @@ export default function todosReducer(state = initialState, action) {
         }
       })
     }
-    case actions.CLEAR_COMPLETED_TODOS: {
+    case actionTypes.CLEAR_COMPLETED_TODOS: {
       return state.filter((todo) => !todo.completed)
     }
     default:
@@ -67,16 +96,18 @@ export default function todosReducer(state = initialState, action) {
   }
 }
 
-export async function fetchTodos(dispatch, _) {
-  const response = await client.get('/fakeApi/todos')
+export function fetchTodos() {
+  return async function fetchTodosThunk(dispatch, _) {
+    const response = await client.get('/fakeApi/todos')
 
-  dispatch({ type: actions.TODOS_LOADED, payload: response.todos })
+    dispatch(actionCreators.todosLoaded(response.todos))
+  }
 }
 
 export function saveTodo(text) {
   return async function saveTodoThunk(dispatch, _) {
     const response = await client.post('/fakeApi/todos', { todo: { text } })
 
-    dispatch({ type: actions.ADD_TODO, payload: response.todo })
+    dispatch(actionCreators.todoAdded(response.todo))
   }
 }

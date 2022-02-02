@@ -9,7 +9,7 @@ import { fetchTodos } from './features/todos/todosSlice'
 
 import './index.css'
 
-store.dispatch(fetchTodos)
+store.dispatch(fetchTodos())
 
 ReactDOM.render(
   <React.StrictMode>

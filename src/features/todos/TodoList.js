@@ -2,7 +2,7 @@ import React from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import TodoListItem from './TodoListItem'
-import { actions as todosActions } from './todosSlice'
+import { actionCreators as todosActionCreators } from './todosSlice'
 
 const selectTodosIds = (state) => state.todos.map((todo) => todo.id)
 
@@ -14,20 +14,10 @@ function TodoList() {
     <ul className="todo-list">
       {todoIds.map((id) => {
         const onColorChange = (color) =>
-          dispatch({
-            type: todosActions.CHANGE_TODO_COLOR,
-            payload: { color, id },
-          })
-        const onCompletedChange = (completed) =>
-          dispatch({
-            type: todosActions.TOGGLE_TODO,
-            payload: { completed, id },
-          })
-        const onDelete = () =>
-          dispatch({
-            type: todosActions.DELETE_TODO,
-            payload: { id },
-          })
+          dispatch(todosActionCreators.todoColorChanged(id, color))
+        const onCompletedChange = () =>
+          dispatch(todosActionCreators.todoToggled(id))
+        const onDelete = () => dispatch(todosActionCreators.todoDeleted(id))
 
         return (
           <TodoListItem
