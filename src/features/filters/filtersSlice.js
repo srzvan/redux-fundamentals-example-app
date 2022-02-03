@@ -2,6 +2,11 @@ import { createSlice } from '@reduxjs/toolkit'
 
 import { StatusFilters } from '../../utils'
 
+export const CHANGE_COLOR_TYPES = {
+  ADD: 'add',
+  REMOVE: 'remove',
+}
+
 const initialState = {
   status: StatusFilters.All,
   colors: [],
@@ -18,10 +23,12 @@ const filtersSlice = createSlice({
       reducer(state, action) {
         const { color, changeType } = action.payload
 
-        if (changeType === 'add') {
+        if (changeType === CHANGE_COLOR_TYPES.ADD) {
           state.colors.push(color)
         } else {
-          state.colors.filter((c) => c !== color)
+          const newColors = state.colors.filter((c) => c !== color)
+
+          state.colors = newColors
         }
       },
       prepare(color, changeType) {

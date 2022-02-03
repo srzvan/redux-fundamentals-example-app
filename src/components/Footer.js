@@ -8,6 +8,7 @@ import {
   clearAllCompletedTodos,
 } from '../features/todos/todosSlice'
 import {
+  CHANGE_COLOR_TYPES,
   colorFilterChanged,
   statusFilterChanged,
 } from '../features/filters/filtersSlice'
@@ -92,15 +93,17 @@ function ColorFilters({ value: colors, onChange }) {
   const renderedColors = availableColors.map((color) => {
     const checked = colors.includes(color)
     const handleChange = () => {
-      const changeType = checked ? 'remove' : 'add'
+      const changeType = checked
+        ? CHANGE_COLOR_TYPES.REMOVE
+        : CHANGE_COLOR_TYPES.ADD
       onChange(color, changeType)
     }
 
     return (
       <label key={color}>
         <input
-          type="checkbox"
           name={color}
+          type="checkbox"
           checked={checked}
           onChange={handleChange}
         />
