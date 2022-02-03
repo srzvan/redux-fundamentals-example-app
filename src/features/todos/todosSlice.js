@@ -1,4 +1,4 @@
-import { createSelector, createSlice } from '@reduxjs/toolkit'
+import { createSelector, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 import { client } from '../../api/client'
 import { APICallStatusTypes, StatusFilters } from '../../utils'
@@ -45,6 +45,18 @@ export const selectFilteredTodoIds = createSelector(
   selectFilteredTodos,
   (filteredTodos) => filteredTodos.map((todo) => todo.id)
 )
+
+export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
+  const response = await client.get('fakeApi/todos')
+
+  return response.todos
+})
+
+export const saveTodo = createAsyncThunk('todos/saveTodo', async (text) => {
+  const response = await client.post('/fakeApi/todos', { todo: { text } })
+
+  return response.todo
+})
 
 const todosSlice = createSlice({
   name: 'todos',
@@ -105,6 +117,27 @@ const todosSlice = createSlice({
       })
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTodos.pending, (state, _) => {
+        state.status = APICallStatusTypes.LOADING
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        const newEntities = {}
+
+        action.payload.forEach((todo) => {
+          newEntities[todo.id] = todo
+        })
+
+        state.entities = newEntities
+        state.status = APICallStatusTypes.IDLE
+      })
+      .addCase(saveTodo.fulfilled, (state, action) => {
+        const todo = action.payload
+
+        state.entities[todo.id] = todo
+      })
+  },
 })
 
 export const {
@@ -119,20 +152,3 @@ export const {
 } = todosSlice.actions
 
 export default todosSlice.reducer
-
-export function fetchTodos() {
-  return async function fetchTodosThunk(dispatch, _) {
-    dispatch(todosLoading())
-
-    const response = await client.get('/fakeApi/todos')
-    dispatch(todosLoaded(response.todos))
-  }
-}
-
-export function saveTodo(text) {
-  return async function saveTodoThunk(dispatch, _) {
-    const response = await client.post('/fakeApi/todos', { todo: { text } })
-
-    dispatch(todoAdded(response.todo))
-  }
-}
