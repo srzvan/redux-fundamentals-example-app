@@ -1,20 +1,108 @@
-import { createSelector, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createSelector,
+  createAsyncThunk,
+  createEntityAdapter,
+} from '@reduxjs/toolkit'
 
 import { client } from '../../api/client'
 import { APICallStatusTypes, StatusFilters } from '../../utils'
 
-const initialState = {
+const todosAdapter = createEntityAdapter()
+
+const initialState = todosAdapter.getInitialState({
   status: APICallStatusTypes.IDLE,
-  entities: {},
-}
+})
 
-const selectTodoEntities = (state) => state.todos.entities
+// THUNKS
 
-export const selectTodos = createSelector(selectTodoEntities, (entities) =>
-  Object.values(entities)
-)
+export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
+  const response = await client.get('fakeApi/todos')
 
-export const selectTodoById = (state, id) => selectTodoEntities(state)[id]
+  return response.todos
+})
+
+export const saveTodo = createAsyncThunk('todos/saveTodo', async (text) => {
+  const response = await client.post('/fakeApi/todos', { todo: { text } })
+
+  return response.todo
+})
+
+// SLICE REDUCER
+
+const todosSlice = createSlice({
+  name: 'todos',
+  initialState,
+  reducers: {
+    todoDeleted: todosAdapter.removeOne,
+    todoToggled(state, action) {
+      const id = action.payload
+      const todo = state.entities[id]
+
+      todosAdapter.updateOne(state, {
+        id,
+        changes: { completed: !todo.completed },
+      })
+    },
+    todoColorChanged: {
+      reducer(state, action) {
+        const { id, color } = action.payload
+
+        todosAdapter.updateOne(state, { id, changes: { color } })
+      },
+      prepare(id, color) {
+        return {
+          payload: { id, color },
+        }
+      },
+    },
+    allTodosCompleted(state, _) {
+      const updates = Object.values(state.entities)
+        .filter((todo) => !todo.completed)
+        .map((todo) => ({
+          id: todo.id,
+          changes: {
+            completed: true,
+          },
+        }))
+
+      todosAdapter.updateMany(state, updates)
+    },
+    completedTodosCleared(state, _) {
+      const completedIds = Object.values(state.entities).map(
+        (todo) => todo.completed && todo.id
+      )
+
+      todosAdapter.removeMany(state, completedIds)
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTodos.pending, (state, _) => {
+        state.status = APICallStatusTypes.LOADING
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        todosAdapter.setAll(state, action.payload)
+        state.status = APICallStatusTypes.IDLE
+      })
+      .addCase(saveTodo.fulfilled, todosAdapter.addOne)
+  },
+})
+
+export const {
+  todoDeleted,
+  todoToggled,
+  todoColorChanged,
+  allTodosCompleted,
+  completedTodosCleared,
+} = todosSlice.actions
+
+// SELECTORS
+
+export default todosSlice.reducer
+
+export const { selectAll: selectTodos, selectById: selectTodoById } =
+  todosAdapter.getSelectors((state) => state.todos)
 
 export const selectTodoIds = createSelector(selectTodos, (todos) =>
   Object.keys(todos)
@@ -45,110 +133,3 @@ export const selectFilteredTodoIds = createSelector(
   selectFilteredTodos,
   (filteredTodos) => filteredTodos.map((todo) => todo.id)
 )
-
-export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
-  const response = await client.get('fakeApi/todos')
-
-  return response.todos
-})
-
-export const saveTodo = createAsyncThunk('todos/saveTodo', async (text) => {
-  const response = await client.post('/fakeApi/todos', { todo: { text } })
-
-  return response.todo
-})
-
-const todosSlice = createSlice({
-  name: 'todos',
-  initialState,
-  reducers: {
-    todoAdded(state, action) {
-      const todo = action.payload
-
-      state.entities[todo.id] = todo
-    },
-    todoDeleted(state, action) {
-      const id = action.payload
-
-      delete state.entities[id]
-    },
-    todoToggled(state, action) {
-      const id = action.payload
-      const todo = state.entities[id]
-
-      todo.completed = !todo.completed
-    },
-    todosLoaded(state, action) {
-      const todos = action.payload
-
-      state.status = APICallStatusTypes.IDLE
-      todos.forEach((todo) => {
-        state.entities[todo.id] = todo
-      })
-    },
-    todosLoading(state, _) {
-      state.status = APICallStatusTypes.LOADING
-    },
-    todoColorChanged: {
-      reducer(state, action) {
-        const { id, color } = action.payload
-        const todo = state.entities[id]
-
-        todo.color = color
-      },
-      prepare(id, color) {
-        return {
-          payload: { id, color },
-        }
-      },
-    },
-    completeAllTodos(state, _) {
-      Object.values(state.entities).forEach((todo) => {
-        if (!todo.completed) {
-          todo.completed = true
-        }
-      })
-    },
-    clearAllCompletedTodos(state, _) {
-      Object.values(state.entities).forEach((todo) => {
-        if (todo.completed) {
-          delete state.entities[todo.id]
-        }
-      })
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchTodos.pending, (state, _) => {
-        state.status = APICallStatusTypes.LOADING
-      })
-      .addCase(fetchTodos.fulfilled, (state, action) => {
-        const newEntities = {}
-
-        action.payload.forEach((todo) => {
-          newEntities[todo.id] = todo
-        })
-
-        state.entities = newEntities
-        state.status = APICallStatusTypes.IDLE
-      })
-      .addCase(saveTodo.fulfilled, (state, action) => {
-        const todo = action.payload
-
-        state.entities[todo.id] = todo
-      })
-  },
-})
-
-export const {
-  todoAdded,
-  todoDeleted,
-  todoToggled,
-  todosLoaded,
-  todosLoading,
-  todoColorChanged,
-  completeAllTodos,
-  clearAllCompletedTodos,
-} = todosSlice.actions
-
-export default todosSlice.reducer

@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { capitalize, StatusFilters } from '../utils'
 import {
   selectTodos,
-  completeAllTodos,
-  clearAllCompletedTodos,
+  allTodosCompleted,
+  completedTodosCleared,
 } from '../features/todos/todosSlice'
 import {
   CHANGE_COLOR_TYPES,
@@ -30,9 +30,9 @@ function Footer() {
     dispatch(colorFilterChanged(color, changeType))
   const onStatusChange = (status) => dispatch(statusFilterChanged(status))
 
-  const completeAll = () => dispatch(completeAllTodos())
+  const completeAll = () => dispatch(allTodosCompleted())
 
-  const clearCompleted = () => dispatch(clearAllCompletedTodos())
+  const clearCompleted = () => dispatch(completedTodosCleared())
 
   return (
     <footer className="footer">
